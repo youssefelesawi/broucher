@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>DigitalVows | Customize Your Invitation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Italianno&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    /* Light & Dark mode variables - refined for perfect contrast */
+    :root {
+      --bg-primary: #0B0A0A;
+      --bg-secondary: rgba(11, 10, 10, 0.92);
+      --text-primary: #EDEAE4;
+      --text-secondary: #C5B8A8;
+      --text-muted: #A0907C;
+      --border-glow: rgba(219, 198, 165, 0.25);
+      --card-bg: rgba(20, 18, 17, 0.65);
+      --accent-gold: #DBC6A5;
+      --accent-gold-light: #E8D7BE;
+      --accent-gold-dark: #B89B72;
+      --footer-text: #6B5D4E;
+      --btn-hover: #DBC6A5;
+      --btn-hover-text: #0B0A0A;
+      --dialog-bg: rgba(25,23,22,0.98);
+      --stat-number: #DBC6A5;
+      --choice-bg: rgba(30, 28, 27, 0.7);
+      --icon-filter: brightness(0) invert(1);
+      --input-bg: rgba(0, 0, 0, 0.5);
+      --shadow-color: rgba(219, 198, 165, 0.2);
+      --heading-grad: linear-gradient(135deg, #F5E7D3, #DBC6A5);
+      --brand-color: transparent;
+    }
+
+    body.light-mode {
+      --bg-primary: #F5F0E8;
+      --bg-secondary: rgba(245, 240, 232, 0.95);
+      --text-primary: #2C241E;
+      --text-secondary: #4A3F35;
+      --text-muted: #7A6A5A;
+      --border-glow: rgba(90, 70, 50, 0.2);
+      --card-bg: rgba(255, 250, 240, 0.9);
+      --accent-gold: #A0784C;
+      --accent-gold-light: #C4A16E;
+      --accent-gold-dark: #7D5D3A;
+      --footer-text: #8B7355;
+      --btn-hover: #A0784C;
+      --btn-hover-text: #FFFFFF;
+      --dialog-bg: rgba(255, 252, 245, 0.98);
+      --stat-number: #A0784C;
+      --choice-bg: rgba(245, 238, 228, 0.85);
+      --icon-filter: brightness(0) saturate(100%) invert(0);
+      --input-bg: rgba(200, 185, 165, 0.25);
+      --shadow-color: rgba(100, 70, 40, 0.15);
+      --heading-grad: linear-gradient(135deg, #2C241E, #2C241E);
+      --brand-color: #1A1613;
+    }
+
+    body {
+      background: var(--bg-primary);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.3s ease, color 0.2s ease;
+    }
+    
+    /* Fix for thin line on side in dark mode - removed any stray borders */
+    .image-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+    .bg-image { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.6s; opacity: 1; }
+    .image-backdrop::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.4) 100%); pointer-events: none; }
+    body.light-mode .image-backdrop::after { background: linear-gradient(135deg, rgba(245,238,225,0.8) 0%, rgba(235,225,210,0.6) 100%); }
+    
+    /* Ensure no thin white/gold lines on edges */
+    html, body { margin: 0; padding: 0; width: 100%; overflow-x: hidden; }
+    .main-wrapper { width: 100%; overflow-x: hidden; }
+    
+    ::selection { background: var(--accent-gold); color: #0B0A0A; }
+    
+    .navbar { position: fixed; top: 0; left: 0; width: 100%; padding: 0.8rem 2rem; display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); backdrop-filter: blur(16px); z-index: 1000; border-bottom: 1px solid var(--border-glow); flex-wrap: wrap; gap: 1rem; }
+    
+    .brand { display: flex; align-items: center; gap: 0.8rem; }
+    .brand-name { font-size: 2rem; font-weight: 400; font-family: 'Italianno', cursive; letter-spacing: 1px; color: var(--brand-color); background: var(--heading-grad); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    body.light-mode .brand-name { background: none; background-clip: unset; -webkit-background-clip: unset; color: #1A1613; }
+    
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+    .nav-link { background: none; border: none; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.3s ease; padding: 0.4rem 0; position: relative; }
+    .nav-link:hover { color: var(--accent-gold); }
+    .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px; background: var(--accent-gold); transition: width 0.3s ease; }
+    .nav-link:hover::after { width: 100%; }
+    
+    /* Minimalist theme toggle - no border, just text */
+    .theme-toggle {
+      background: transparent;
+      border: none;
+      font-size: 0.7rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.25s ease;
+      padding: 0.3rem 0.4rem;
+      border-radius: 0;
+      backdrop-filter: none;
+    }
+    .theme-toggle:hover { color: var(--accent-gold); background: transparent; }
+    
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; padding-top: 85px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem 2rem 2rem; width: 100%; flex: 1; display: flex; flex-direction: column; }
+    .customize-header { text-align: center; margin-bottom: 2rem; }
+    .customize-header h1 { font-size: 2rem; font-weight: 600; background: var(--heading-grad); background-clip: text; -webkit-background-clip: text; color: transparent; margin-bottom: 0.25rem; letter-spacing: -0.3px; }
+    .customize-header p { font-size: 0.85rem; color: var(--text-secondary); }
+    
+    .step-tabs { display: flex; justify-content: center; gap: 0.8rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .step-tab { background: var(--choice-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-glow); border-radius: 60px; padding: 0.6rem 1.3rem; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.3s ease; }
+    .step-tab.active { background: var(--accent-gold); border-color: var(--accent-gold); color: #0B0A0A; }
+    body.light-mode .step-tab.active { color: #FFFFFF; background: var(--accent-gold); }
+    
+    .options-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+    .choice-btn { background: var(--choice-bg); backdrop-filter: blur(8px); border: 1px solid var(--border-glow); border-radius: 60px; padding: 0.7rem 1.4rem; font-size: 0.85rem; font-weight: 500; color: var(--text-primary); cursor: pointer; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 8px; }
+    .choice-btn:hover { background: var(--accent-gold); border-color: var(--accent-gold); color: #0B0A0A; transform: translateY(-2px); }
+    body.light-mode .choice-btn:hover { color: #FFFFFF; }
+    .choice-btn.selected { background: var(--accent-gold); border-color: var(--accent-gold); color: #0B0A0A; }
+    body.light-mode .choice-btn.selected { color: #FFFFFF; }
+    .choice-price { font-size: 0.7rem; font-weight: 600; opacity: 0.9; }
+    .preview-icon { font-size: 0.7rem; margin-left: 6px; opacity: 0.8; }
+    
+    .nav-buttons { display: flex; justify-content: center; gap: 1.2rem; margin: 1rem 0 2rem; }
+    .btn-prev, .btn-next { background: transparent; border: 1.5px solid var(--border-glow); border-radius: 60px; padding: 0.6rem 1.8rem; font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); cursor: pointer; transition: all 0.3s; }
+    .btn-prev:hover, .btn-next:hover { background: var(--accent-gold); border-color: var(--accent-gold); color: #0B0A0A; transform: translateY(-2px); }
+    body.light-mode .btn-prev:hover, body.light-mode .btn-next:hover { color: #FFFFFF; }
+    .btn-prev:disabled, .btn-next:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+    
+    .price-footer { text-align: center; padding: 1.2rem 2rem 1.5rem; margin-top: auto; background: var(--bg-secondary); backdrop-filter: blur(8px); border-top: 1px solid var(--border-glow); }
+    .price-display { font-size: 2rem; font-weight: 600; color: var(--accent-gold); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+    .gold-line { width: 60px; height: 2px; background: var(--accent-gold); margin: 0 auto; opacity: 0.5; border-radius: 2px; }
+    
+    /* Dialog & Modal Styles */
+    .custom-dialog-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 3000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .custom-dialog-overlay.active { opacity: 1; visibility: visible; }
+    .custom-dialog { background: var(--dialog-bg); border: 1px solid var(--accent-gold); border-radius: 32px; padding: 2rem; max-width: 420px; width: 90%; text-align: center; box-shadow: 0 20px 40px var(--shadow-color); }
+    .custom-dialog h3 { color: var(--accent-gold); margin-bottom: 0.75rem; font-weight: 600; }
+    .custom-dialog p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .custom-dialog button { background: var(--accent-gold); border: none; padding: 0.7rem 1.8rem; border-radius: 40px; font-family: 'Inter', sans-serif; font-weight: 600; color: #0B0A0A; cursor: pointer; transition: 0.2s; }
+    body.light-mode .custom-dialog button { color: #FFFFFF; }
+    .custom-dialog button:hover { transform: scale(0.97); filter: brightness(1.05); }
+    
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); backdrop-filter: blur(12px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-card { background: var(--card-bg); backdrop-filter: blur(16px); border: 1px solid var(--border-glow); border-radius: 32px; padding: 2rem; max-width: 560px; width: 90%; max-height: 85vh; overflow-y: auto; }
+    .modal-card h2 { margin-bottom: 1rem; color: var(--accent-gold); font-weight: 600; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.4rem; color: var(--accent-gold); font-size: 0.8rem; font-weight: 500; }
+    .form-group input, .form-group textarea { width: 100%; padding: 0.8rem 1rem; background: var(--input-bg); border: 1px solid var(--border-glow); border-radius: 16px; color: var(--text-primary); font-family: inherit; font-size: 0.9rem; transition: all 0.2s; }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 0 2px var(--shadow-color); }
+    .modal-btn { background: var(--accent-gold); color: #0B0A0A; border: none; padding: 0.9rem; border-radius: 60px; cursor: pointer; font-weight: 700; width: 100%; margin-top: 1rem; transition: all 0.3s; font-size: 0.95rem; }
+    body.light-mode .modal-btn { color: #FFFFFF; }
+    .modal-btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .instapay-payment-btn { background: linear-gradient(135deg, #20B2AA, #128C7E); color: white; border: none; padding: 1rem; border-radius: 60px; cursor: pointer; font-weight: 700; font-size: 1rem; width: 100%; margin-top: 1rem; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.8rem; font-family: 'Inter', sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .instapay-payment-btn:hover { transform: translateY(-3px); filter: brightness(1.08); }
+    .info-box { background: rgba(219,198,165,0.12); border-radius: 20px; padding: 1rem; margin: 1rem 0; text-align: left; border-left: 3px solid var(--accent-gold); }
+    .payment-section { background: rgba(0,0,0,0.3); border-radius: 24px; padding: 1.2rem; margin-top: 1rem; text-align: center; border: 1px solid var(--border-glow); }
+    .close-modal { background: none; border: none; color: var(--accent-gold); font-size: 1.8rem; cursor: pointer; float: right; line-height: 1; transition: 0.2s; }
+    .close-modal:hover { transform: scale(1.1); }
+    .location-hint { font-size: 0.65rem; color: var(--text-muted); margin-top: 0.3rem; }
+    
+    @media (max-width: 768px) { .navbar { padding: 0.6rem 1rem; flex-direction: column; } .brand { width: 100%; justify-content: center; } .nav-links { width: 100%; justify-content: center; gap: 0.8rem; } .main-wrapper { padding-top: 110px; } .container { padding: 1rem; } .price-display { font-size: 1.5rem; } .choice-btn { padding: 0.5rem 1rem; font-size: 0.75rem; } }
+  </style>
+</head>
+<body>
+<div class="image-backdrop" id="imageBackdrop"><img id="bgImage" class="bg-image" alt=""></div>
+<div class="custom-dialog-overlay" id="globalDialog"><div class="custom-dialog"><h3 id="dialogTitle">Notice</h3><p id="dialogMessage"></p><button id="dialogConfirmBtn">OK</button></div></div>
+
+<div class="navbar">
+  <div class="brand"><span class="brand-name">DigitalVows</span></div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="window.location.href='index.html'">Home</button>
+    <button class="nav-link" onclick="window.location.href='index.html#about'">About</button>
+    <button class="nav-link" onclick="window.location.href='index.html#services'">Services</button>
+    <button class="nav-link" onclick="window.location.href='index.html#contact'">Contact</button>
+    <div class="theme-toggle" id="themeToggleBtn">LIGHT</div>
+  </div>
+</div>
+
+<div class="main-wrapper"><div class="container"><div class="customize-header"><h1>Design Your Invitation</h1><p>choose each category — all selections are required</p></div><div class="step-tabs" id="stepTabs"><button class="step-tab active" data-step="0">01 · Intro Style</button><button class="step-tab" data-step="1">02 · Background</button><button class="step-tab" data-step="2">03 · Music</button></div><div id="optionsContainer"></div><div class="nav-buttons"><button class="btn-prev" id="prevBtn">← Previous</button><button class="btn-next" id="nextBtn">Next →</button></div></div><div class="price-footer"><div class="price-display" id="priceDisplay">$0</div><div class="gold-line"></div></div></div>
+
+<div id="orderModal" class="modal-overlay"><div class="modal-card"><button class="close-modal" id="closeModalBtn">&times;</button><div id="modalContent"></div></div></div>
+
+<script>
+  // ========== DARK/LIGHT MODE SYNC ==========
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const applyTheme = (theme) => {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+      if (themeToggleBtn) themeToggleBtn.innerText = 'DARK';
+    } else {
+      document.body.classList.remove('light-mode');
+      if (themeToggleBtn) themeToggleBtn.innerText = 'LIGHT';
+    }
+  };
+  const savedTheme = localStorage.getItem('digitalvows-theme');
+  if (savedTheme === 'light') applyTheme('light');
+  else if (savedTheme === 'dark') applyTheme('dark');
+  else {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (!prefersDark) { applyTheme('light'); localStorage.setItem('digitalvows-theme', 'light'); }
+    else { applyTheme('dark'); localStorage.setItem('digitalvows-theme', 'dark'); }
+  }
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      if (document.body.classList.contains('light-mode')) {
+        applyTheme('dark');
+        localStorage.setItem('digitalvows-theme', 'dark');
+      } else {
+        applyTheme('light');
+        localStorage.setItem('digitalvows-theme', 'light');
+      }
+    });
+  }
+
+  // Firebase Config
+  const firebaseConfig = { apiKey: "AIzaSyDEnumhUfiYWvdGUIC1PEYbx7YgwRml_yc", authDomain: "digitalvows.firebaseapp.com", projectId: "digitalvows", storageBucket: "digitalvows.firebasestorage.app", messagingSenderId: "981576681165", appId: "1:981576681165:web:73498f764062de4e0a4b84" };
+  firebase.initializeApp(firebaseConfig); 
+  const db = firebase.firestore();
+  const MAIN_DOC_ID = "digitalvows_main";
+  const mainDocRef = db.collection('app_data').doc(MAIN_DOC_ID);
+  const ordersCollection = mainDocRef.collection('orders');
+
+  // Updated prices as requested
+  const introOptions = [
+    { id: "style1", name: "Style 1", price: 130, image: "custom/intro1.jpg", audioPreview: null },
+    { id: "style2", name: "Style 2", price: 145, image: "custom/intro2.jpg", audioPreview: null },
+    { id: "style3", name: "Style 3", price: 165, image: "custom/intro3.jpg", audioPreview: null },
+    { id: "style4", name: "Style 4", price: 180, image: "custom/intro4.jpg", audioPreview: null }
+  ];
+  const bgOptions = [
+    { id: "bg1", name: "Style 1", price: 150, image: "custom/bg1.jpg" },
+    { id: "bg2", name: "Style 2", price: 170, image: "custom/bg2.jpg" },
+    { id: "bg3", name: "Style 3", price: 185, image: "custom/bg3.jpg" },
+    { id: "bg4", name: "Style 4", price: 200, image: "custom/bg4.jpg" }
+  ];
+  const musicOptions = [
+    { id: "nomusic", name: "No Music", price: 0, audioPreview: null },
+    { id: "music1", name: "Music 1", price: 29, audioPreview: "custom/music1.mp3" },
+    { id: "music2", name: "Music 2", price: 49, audioPreview: "custom/music2.mp3" },
+    { id: "music3", name: "Music 3", price: 75, audioPreview: "custom/music3.mp3" },
+    { id: "music4", name: "Music 4", price: 99, audioPreview: "custom/music4.mp3" }
+  ];
+
+  const INSTAPAY_PAYMENT_LINK = "https://ipn.eg/S/y.elesawi/instapay/3S1OfJ";
+
+  let currentStep = 0;
+  let selections = { intro: null, background: null, music: null };
+  let currentOrderCode = null;
+  let currentAudio = null;
+  const bgImage = document.getElementById("bgImage");
+  const optionsContainer = document.getElementById("optionsContainer");
+  const priceDisplay = document.getElementById("priceDisplay");
+  const orderModal = document.getElementById("orderModal");
+  const modalContent = document.getElementById("modalContent");
+  const dialogOverlay = document.getElementById("globalDialog");
+  const dialogMsg = document.getElementById("dialogMessage");
+  const dialogTitle = document.getElementById("dialogTitle");
+  const dialogConfirm = document.getElementById("dialogConfirmBtn");
+
+  function showGraphicDialog(message, title = "Notice") {
+    dialogTitle.innerText = title;
+    dialogMsg.innerText = message;
+    dialogOverlay.classList.add("active");
+    return new Promise((resolve) => {
+      const handler = () => { dialogOverlay.classList.remove("active"); dialogConfirm.removeEventListener("click", handler); resolve(); };
+      dialogConfirm.addEventListener("click", handler, { once: true });
+    });
+  }
+
+  function stopAudioPreview() { if(currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; currentAudio = null; } }
+  function playAudioPreview(url) { if(!url) return; stopAudioPreview(); const audio = new Audio(url); audio.volume = 0.3; audio.play().catch(()=>{}); currentAudio = audio; audio.onended = () => { currentAudio = null; }; }
+
+  function changeBackgroundImage(src) { if(!src) return; bgImage.style.opacity = "0"; setTimeout(() => { bgImage.src = src; bgImage.onload = () => { bgImage.style.opacity = "1"; }; if(bgImage.complete) bgImage.style.opacity = "1"; }, 150); }
+
+  function updateTotal() { let total = (selections.intro?.price||0)+(selections.background?.price||0)+(selections.music?.price||0); priceDisplay.innerText = total === 0 ? "$0" : `$${total}`; return total; }
+
+  function renderOptions() {
+    let stepKey = currentStep === 0 ? 'intro' : (currentStep === 1 ? 'background' : 'music');
+    let optionsList = stepKey === 'intro' ? introOptions : (stepKey === 'background' ? bgOptions : musicOptions);
+    const selectedId = selections[stepKey]?.id;
+    let html = `<div class="options-row">`;
+    optionsList.forEach(opt => {
+      const priceLabel = opt.price > 0 ? `+$${opt.price}` : "Free";
+      let previewMark = (stepKey === 'music' && opt.audioPreview && opt.id !== 'nomusic') ? `<span class="preview-icon">▶</span>` : '';
+      html += `<button class="choice-btn ${selectedId === opt.id ? 'selected' : ''}" data-id="${opt.id}" data-price="${opt.price}" data-name="${opt.name.replace(/'/g, "\\'")}" data-stepkey="${stepKey}" ${opt.image ? `data-image="${opt.image}"` : ''} ${opt.audioPreview ? `data-audio="${opt.audioPreview}"` : ''}>
+          <span>${opt.name}</span><span class="choice-price">${priceLabel}</span>${previewMark}
+      </button>`;
+    });
+    html += `</div>`;
+    optionsContainer.innerHTML = html;
+    document.querySelectorAll('.choice-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id, price = parseInt(btn.dataset.price), name = btn.dataset.name, stepkey = btn.dataset.stepkey;
+        const image = btn.dataset.image || null, audioUrl = btn.dataset.audio || null;
+        const cleanSelection = { id, name, price };
+        if (image) cleanSelection.image = image;
+        if (audioUrl) cleanSelection.audioPreview = audioUrl;
+        selections[stepkey] = cleanSelection;
+        document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        if((stepkey === 'intro' || stepkey === 'background') && image) changeBackgroundImage(image);
+        if(stepkey === 'music') { stopAudioPreview(); if(audioUrl && id !== 'nomusic') playAudioPreview(audioUrl); }
+        updateTotal();
+        document.getElementById('nextBtn').disabled = false;
+      });
+    });
+  }
+
+  function goToStep(step) {
+    if(step < 0 || step > 2) return;
+    if(currentStep === 2) stopAudioPreview();
+    currentStep = step;
+    renderOptions();
+    document.querySelectorAll('.step-tab').forEach((tab, idx) => { if(idx === currentStep) tab.classList.add('active'); else tab.classList.remove('active'); });
+    const prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn');
+    prevBtn.disabled = (currentStep === 0);
+    const stepKey = currentStep === 0 ? 'intro' : (currentStep === 1 ? 'background' : 'music');
+    nextBtn.disabled = selections[stepKey] === null;
+    nextBtn.textContent = currentStep === 2 ? 'Review & Order' : 'Next →';
+  }
+
+  async function verifyAndOpenModal() {
+    if(!selections.intro || !selections.background || !selections.music) { await showGraphicDialog("Please complete all three selections (Intro, Background, Music) before proceeding.", "Selection Required"); return; }
+    orderModal.classList.add('active');
+    modalContent.innerHTML = `<h2>Enter Your Order Code</h2><div class="form-group"><label>Order Code</label><input type="text" id="orderCodeInput" placeholder="Vows-XXXXXX"></div><button class="modal-btn" id="verifyCodeBtn">Verify & Continue</button><div id="verifyError" style="color:#E8A0A0; margin-top:1rem; display:none;"></div>`;
+    document.getElementById('verifyCodeBtn').addEventListener('click', async () => { await handleCodeVerification(); });
+  }
+
+  async function handleCodeVerification() {
+    const code = document.getElementById('orderCodeInput').value.trim();
+    if(!code) { showInlineError("Please enter order code"); return; }
+    try {
+      const orderRef = ordersCollection.doc(code);
+      const doc = await orderRef.get();
+      if(!doc.exists) { showInlineError("Invalid code. No order found."); return; }
+      const data = doc.data();
+      if(data.status === 'completed') { await showGraphicDialog("This order code has already been completed. Thank you!", "Code Used"); orderModal.classList.remove('active'); return; }
+      if(data.status === 'admin_pending') { await showGraphicDialog("This order is already pending admin approval. Please wait for confirmation.", "Order In Progress"); orderModal.classList.remove('active'); return; }
+      currentOrderCode = code;
+      const cleanCustomization = { intro: { id: selections.intro.id, name: selections.intro.name, price: selections.intro.price }, background: { id: selections.background.id, name: selections.background.name, price: selections.background.price }, music: { id: selections.music.id, name: selections.music.name, price: selections.music.price } };
+      await orderRef.update({ customizationData: cleanCustomization, status: 'customization_pending', updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      showOrderDetailsForm();
+    } catch(err) { showInlineError("Error: " + err.message); }
+  }
+  
+  function showInlineError(msg) { const errDiv = document.getElementById('verifyError'); if(errDiv) { errDiv.style.display = 'block'; errDiv.innerText = msg; } }
+  
+  function showOrderDetailsForm() {
+    let total = (selections.intro?.price||0)+(selections.background?.price||0)+(selections.music?.price||0);
+    modalContent.innerHTML = `<h2>Finalize Your Invitation</h2><div class="info-box"><strong>Code:</strong> ${currentOrderCode}<br><strong>Selected:</strong> Intro ${selections.intro.name} (+$${selections.intro.price}) / BG ${selections.background.name} (+$${selections.background.price}) / Music ${selections.music.name} (${selections.music.price>0 ? '+$'+selections.music.price : 'Free'})<br><strong>Total Amount:</strong> <span style="color:var(--accent-gold); font-size:1.2rem; font-weight:700;">$${total}</span></div>
+      <div class="form-group"><label>Bride Name (Arabic - Arabic letters only)</label><input type="text" id="brideAr" placeholder="اسم العروس"></div>
+      <div class="form-group"><label>Bride Name (English - English letters only)</label><input type="text" id="brideEn" placeholder="Bride Name"></div>
+      <div class="form-group"><label>Groom Name (Arabic - Arabic letters only)</label><input type="text" id="groomAr" placeholder="اسم العريس"></div>
+      <div class="form-group"><label>Groom Name (English - English letters only)</label><input type="text" id="groomEn" placeholder="Groom Name"></div>
+      <div class="form-group"><label>Venue / Hall Name</label><input type="text" id="venueName" placeholder="e.g., Grand Millennium Hall"></div>
+      <div class="form-group"><label>Venue Location (Google Maps Link or full address)</label><input type="text" id="venueLocation" placeholder="https://maps.google.com/... or address"><div class="location-hint">Paste a Google Maps link or complete address</div></div>
+      <div class="form-group"><label>Event Date</label><input type="date" id="eventDate"></div>
+      <div class="form-group"><label>Mobile Number</label><input type="tel" id="mobileNumber" placeholder="+20 123 456 789"></div>
+      <div class="payment-section"><div style="margin-bottom: 0.8rem; font-weight: 700; color: var(--accent-gold);">💰 Payment Method</div><button id="instapayPaymentBtn" class="instapay-payment-btn"><span>📱</span> Pay with InstaPay</button><div style="font-size: 0.7rem; margin-top: 0.8rem;">After payment, click "Submit Order" below</div></div>
+      <button class="modal-btn" id="submitOrderBtn">✓ Submit Order</button>`;
+    document.getElementById('instapayPaymentBtn').addEventListener('click', () => { window.open(INSTAPAY_PAYMENT_LINK, '_blank'); });
+    document.getElementById('submitOrderBtn').addEventListener('click', submitFinalOrder);
+  }
+  
+  async function submitFinalOrder() {
+    const brideAr = document.getElementById('brideAr').value.trim(), brideEn = document.getElementById('brideEn').value.trim(), groomAr = document.getElementById('groomAr').value.trim(), groomEn = document.getElementById('groomEn').value.trim(), mobile = document.getElementById('mobileNumber').value.trim(), venueName = document.getElementById('venueName').value.trim(), venueLocation = document.getElementById('venueLocation').value.trim(), eventDate = document.getElementById('eventDate').value;
+    const nameRegexAr = /^[\u0600-\u06FF\s]+$/, nameRegexEn = /^[A-Za-z\s]+$/;
+    if(!brideAr || !nameRegexAr.test(brideAr)) { await showGraphicDialog("Bride name (Arabic) must contain Arabic letters only.", "Validation Error"); return; }
+    if(!brideEn || !nameRegexEn.test(brideEn)) { await showGraphicDialog("Bride name (English) must contain English letters only.", "Validation Error"); return; }
+    if(!groomAr || !nameRegexAr.test(groomAr)) { await showGraphicDialog("Groom name (Arabic) must contain Arabic letters only.", "Validation Error"); return; }
+    if(!groomEn || !nameRegexEn.test(groomEn)) { await showGraphicDialog("Groom name (English) must contain English letters only.", "Validation Error"); return; }
+    if(!mobile || !venueName || !venueLocation || !eventDate) { await showGraphicDialog("Please fill all required fields (Venue, Location, Date, Mobile).", "Validation Error"); return; }
+    try {
+      const total = (selections.intro?.price||0)+(selections.background?.price||0)+(selections.music?.price||0);
+      await ordersCollection.doc(currentOrderCode).update({ coupleData: { brideAr, brideEn, groomAr, groomEn, mobile, venueName, venueLocation, eventDate }, finalTotal: total, status: 'admin_pending', paymentMethod: 'InstaPay', paymentLink: INSTAPAY_PAYMENT_LINK, submittedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await showGraphicDialog("Order submitted successfully! Admin will review within 24 hours.\n\nPlease complete payment via InstaPay.", "Order Received");
+      orderModal.classList.remove('active');
+      window.location.href = 'index.html';
+    } catch(err) { await showGraphicDialog("Error: " + err.message, "Submission Error"); }
+  }
+  
+  document.getElementById('prevBtn').addEventListener('click', () => { if(currentStep > 0) goToStep(currentStep-1); });
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    const stepKey = currentStep === 0 ? 'intro' : (currentStep === 1 ? 'background' : 'music');
+    if(!selections[stepKey]) { showGraphicDialog(`Please select a ${stepKey} option first`, "Required"); return; }
+    if(currentStep === 2) verifyAndOpenModal();
+    else goToStep(currentStep+1);
+  });
+  document.querySelectorAll('.step-tab').forEach(tab => { tab.addEventListener('click', () => { const step = parseInt(tab.dataset.step); if(!isNaN(step)) goToStep(step); }); });
+  document.getElementById('closeModalBtn').addEventListener('click', () => { orderModal.classList.remove('active'); stopAudioPreview(); });
+  orderModal.addEventListener('click', (e) => { if(e.target === orderModal) { orderModal.classList.remove('active'); stopAudioPreview(); } });
+  goToStep(0);
+  updateTotal();
+</script>
+</body>
+</html>

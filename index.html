@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>DigitalVows | Elegant Digital Invitations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Italianno&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Light & Dark mode variables - elegant, cohesive */
+    :root {
+      --bg-primary: #0B0A0A;
+      --bg-secondary: rgba(11, 10, 10, 0.85);
+      --text-primary: #EDEAE4;
+      --text-secondary: #B8AA9A;
+      --text-muted: #9E8F7C;
+      --border-glow: rgba(219, 198, 165, 0.2);
+      --card-bg: rgba(20, 18, 17, 0.55);
+      --accent-gold: #DBC6A5;
+      --accent-gold-grad: linear-gradient(135deg, #F5E7D3, #DBC6A5);
+      --footer-text: #5e5548;
+      --btn-hover: #DBC6A5;
+      --btn-hover-text: #0B0A0A;
+      --dialog-bg: rgba(25,23,22,0.98);
+      --stat-number: #DBC6A5;
+      --icon-filter: brightness(0) invert(1);
+      --social-icon-color: #EDEAE4;
+    }
+
+    body.light-mode {
+      --bg-primary: #FCF9F5;
+      --bg-secondary: rgba(245, 240, 232, 0.95);
+      --text-primary: #1E1B18;
+      --text-secondary: #4A3F35;
+      --text-muted: #7A6A5A;
+      --border-glow: rgba(139, 115, 85, 0.25);
+      --card-bg: rgba(245, 240, 232, 0.85);
+      --accent-gold: #B2926F;
+      --accent-gold-grad: linear-gradient(135deg, #C8AE8C, #A88964);
+      --footer-text: #9B8874;
+      --btn-hover: #B2926F;
+      --btn-hover-text: #FFFFFF;
+      --dialog-bg: rgba(250, 245, 238, 0.98);
+      --stat-number: #B2926F;
+      --icon-filter: none;
+      --social-icon-color: #4A3F35;
+    }
+
+    body {
+      background: var(--bg-primary);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
+      line-height: 1.5;
+      scroll-behavior: smooth;
+      transition: background-color 0.3s ease, color 0.2s ease;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(40, 35, 30, 0.4) 0%, var(--bg-primary) 90%);
+      pointer-events: none;
+      z-index: -2;
+      transition: background 0.3s ease;
+    }
+
+    body.light-mode::before {
+      background: radial-gradient(circle at 20% 30%, rgba(200, 180, 150, 0.15) 0%, var(--bg-primary) 90%);
+    }
+
+    ::selection {
+      background: var(--accent-gold);
+      color: #0B0A0A;
+    }
+
+    /* Navigation Bar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 0.8rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-secondary);
+      backdrop-filter: blur(16px);
+      z-index: 1000;
+      border-bottom: 1px solid var(--border-glow);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .brand-name {
+      font-size: 2rem;
+      font-weight: 400;
+      font-family: 'Italianno', cursive;
+      letter-spacing: 1px;
+      background: var(--accent-gold-grad);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.8rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      background: transparent;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 0.5rem 0;
+      letter-spacing: 0.3px;
+      position: relative;
+    }
+
+    .nav-link:hover {
+      color: var(--accent-gold);
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--accent-gold);
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Minimalist theme toggle */
+    .theme-toggle {
+      background: transparent;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.25s ease;
+      padding: 0.3rem 0.6rem;
+      border-radius: 40px;
+      backdrop-filter: blur(4px);
+    }
+
+    .theme-toggle:hover {
+      color: var(--accent-gold);
+      background: rgba(219, 198, 165, 0.1);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 7rem 2rem 4rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 5rem;
+      font-weight: 400;
+      font-family: 'Italianno', cursive;
+      letter-spacing: 2px;
+      background: var(--accent-gold-grad);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .scroll-hint {
+      margin-top: 3rem;
+      animation: bounce 2s infinite;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); opacity: 0.6; }
+      50% { transform: translateY(10px); opacity: 1; }
+    }
+
+    /* About Section */
+    .about-section {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4rem;
+      flex-wrap: wrap;
+      padding: 4rem 0;
+      border-top: 1px solid var(--border-glow);
+      border-bottom: 1px solid var(--border-glow);
+      margin: 2rem 0;
+      scroll-margin-top: 80px;
+    }
+
+    .about-text {
+      flex: 1;
+    }
+
+    .about-text h2 {
+      font-size: 2.5rem;
+      font-weight: 500;
+      background: var(--accent-gold-grad);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 1.5rem;
+    }
+
+    .about-text p {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .about-stats {
+      display: flex;
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--stat-number);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Hide projects counter visually without removing from DOM */
+    .stat.hidden-stat {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    .about-image {
+      flex: 1;
+      height: 300px;
+      background: linear-gradient(135deg, rgba(219,198,165,0.1), rgba(219,198,165,0.05));
+      border-radius: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-glow);
+      font-size: 4rem;
+      color: var(--accent-gold);
+    }
+
+    /* Services Section */
+    .services-section {
+      padding: 4rem 0;
+      text-align: center;
+      border-bottom: 1px solid var(--border-glow);
+      margin: 2rem 0;
+      scroll-margin-top: 80px;
+    }
+
+    .services-section h2 {
+      font-size: 2rem;
+      font-weight: 500;
+      background: var(--accent-gold-grad);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .services-section p {
+      color: var(--text-secondary);
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .services-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1.8rem;
+      flex-wrap: wrap;
+    }
+
+    .service-btn {
+      background: rgba(20, 18, 17, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-glow);
+      border-radius: 60px;
+      padding: 1rem 2.2rem;
+      min-width: 200px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 1rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    body.light-mode .service-btn {
+      background: rgba(235, 225, 215, 0.7);
+      color: #2B241F;
+    }
+
+    .service-btn:hover {
+      background: var(--btn-hover);
+      color: var(--btn-hover-text);
+      border-color: var(--accent-gold);
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(219,198,165,0.2);
+    }
+
+    .service-btn .btn-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-gold);
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .service-btn:hover .btn-dot {
+      background: var(--btn-hover-text);
+    }
+
+    .service-btn.disabled-btn,
+    .service-btn.disabled-btn:hover {
+      cursor: default;
+      background: rgba(20, 18, 17, 0.5);
+      border-color: rgba(219, 198, 165, 0.25);
+      transform: none;
+      box-shadow: none;
+      color: #a0907c;
+    }
+
+    /* Payment section */
+    .payment-section {
+      padding: 3rem 0 2rem;
+      margin: 1rem 0 2rem;
+      border-bottom: 1px solid var(--border-glow);
+      scroll-margin-top: 80px;
+      text-align: center;
+    }
+
+    .payment-card {
+      max-width: 680px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      border-radius: 48px;
+      padding: 2rem;
+      border: 1px solid var(--border-glow);
+      transition: transform 0.2s ease;
+    }
+
+    .payment-card:hover {
+      border-color: var(--accent-gold);
+    }
+
+    .payment-title {
+      font-size: 1.7rem;
+      font-weight: 500;
+      background: var(--accent-gold-grad);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .instapay-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(105deg, #2F2A24, #1E1B18);
+      border: 1px solid var(--accent-gold);
+      border-radius: 80px;
+      padding: 0.9rem 2.5rem;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: #F5E7D3;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    body.light-mode .instapay-button {
+      background: linear-gradient(105deg, #E5D9CF, #D6C8BB);
+      color: #2C241E;
+    }
+
+    .instapay-button:hover {
+      background: var(--accent-gold);
+      color: #0B0A0A;
+      transform: scale(1.02);
+    }
+
+    /* CONTACT section hidden entirely from UI */
+    .contact-section {
+      display: none !important;
+    }
+
+    /* FOOTER with elegant social icons - fixed for light mode */
+    .footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border-glow);
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--footer-text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.2rem;
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 1.6rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Social icon links - clean, no background, no border */
+    .social-icon-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      opacity: 0.8;
+    }
+
+    .social-icon-link:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+
+    /* SVG icons styling - perfect for both dark/light mode */
+    .social-icon-svg {
+      width: 22px;
+      height: 22px;
+      display: block;
+      transition: all 0.2s ease;
+      color: var(--social-icon-color);
+      fill: var(--social-icon-color);
+    }
+
+    /* Ensure proper coloring in both themes without any background or border */
+    body.light-mode .social-icon-svg {
+      color: #4A3F35;
+      fill: #4A3F35;
+      opacity: 0.85;
+    }
+
+    body.light-mode .social-icon-link:hover .social-icon-svg {
+      color: #B2926F;
+      fill: #B2926F;
+      opacity: 1;
+    }
+
+    body.dark-mode .social-icon-svg,
+    body:not(.light-mode) .social-icon-svg {
+      color: #EDEAE4;
+      fill: #EDEAE4;
+    }
+
+    body:not(.light-mode) .social-icon-link:hover .social-icon-svg {
+      color: #DBC6A5;
+      fill: #DBC6A5;
+      opacity: 1;
+    }
+
+    /* Dialog Overlay */
+    .dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(16px);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .dialog-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .dialog-card {
+      background: var(--dialog-bg);
+      border: 1px solid var(--accent-gold);
+      border-radius: 40px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+    .dialog-card h3 {
+      color: var(--accent-gold);
+      margin-bottom: 0.8rem;
+    }
+    .dialog-card button {
+      background: var(--accent-gold);
+      border: none;
+      padding: 0.7rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Scroll animations */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.7s ease-out;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 3.5rem; }
+      .navbar { padding: 0.8rem 1.2rem; flex-direction: column; }
+      .brand { width: 100%; justify-content: center; }
+      .nav-links { width: 100%; justify-content: center; gap: 1rem; }
+      .container { padding: 8rem 1.5rem 2rem; }
+      .about-section { flex-direction: column; gap: 2rem; }
+      .service-btn { padding: 0.8rem 1.5rem; min-width: 160px; }
+      .social-icon-svg { width: 20px; height: 20px; }
+      .stat.hidden-stat { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="brand">
+    <span class="brand-name">DigitalVows</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link" data-section="home">Home</button>
+    <button class="nav-link" data-section="about">About</button>
+    <button class="nav-link" data-section="services">Services</button>
+    <button class="nav-link" data-section="payment">Payment</button>
+    <div class="theme-toggle" id="themeToggleBtn">LIGHT</div>
+  </div>
+</div>
+
+<div class="container">
+  <section id="home" class="hero fade-up">
+    <h1>DigitalVows</h1>
+    <p>Crafting digital poetry through motion, texture, and timeless elegance.</p>
+    <div class="scroll-hint"><span>↓</span><span>scroll to discover</span></div>
+  </section>
+
+  <section id="about" class="about-section fade-up">
+    <div class="about-text">
+      <h2>About Us</h2>
+      <p>DigitalVows is a proudly Egyptian digital luxury brand founded in 2026, redefining wedding and engagement invitations through modern elegance, refined aesthetics, and immersive online experiences.</p>
+      <p>Designed for a new generation, DigitalVows creates fully digital invitations with exceptional quality, premium detail, and a sophisticated visual identity — transforming every celebration into an unforgettable emotional experience.</p>
+      <div class="about-stats">
+        <!-- Project counter hidden visually but preserved in DOM -->
+        <div class="stat hidden-stat"><div class="stat-number">500+</div><div class="stat-label">Projects</div></div>
+        <div class="stat"><div class="stat-number">256+</div><div class="stat-label">Templates & Designs</div></div>
+        <div class="stat"><div class="stat-number">100%</div><div class="stat-label">Passion</div></div>
+      </div>
+    </div>
+    <div class="about-image">✦ ✦ ✦</div>
+  </section>
+
+  <section id="services" class="services-section fade-up">
+    <h2>Our Services</h2>
+    <p>Choose your path — from ready-to-use templates to fully bespoke designs.</p>
+    <div class="services-buttons">
+      <button class="service-btn" onclick="window.location.href='templates.html'"><span class="btn-dot"></span><span>Templates</span></button>
+      <button class="service-btn" onclick="window.location.href='customize.html'"><span class="btn-dot"></span><span>Customize Now</span></button>
+      <button class="service-btn disabled-btn" id="pdfComingSoonBtn"><span class="btn-dot"></span><span>PDF Invitations</span><span style="font-size:0.7rem; margin-left:8px; background:rgba(0,0,0,0.3); padding:2px 8px; border-radius:40px;">Coming Soon</span></button>
+    </div>
+  </section>
+
+  <section id="payment" class="payment-section fade-up">
+    <div class="payment-card">
+      <div class="payment-title">Secure & Effortless</div>
+      <div class="payment-sub" style="color: var(--text-muted); margin: 0.75rem 0 1.5rem;">Complete your transaction with trusted digital payments</div>
+      <a href="https://ipn.eg/S/y.elesawi/instapay/3S1OfJ" target="_blank" rel="noopener noreferrer" class="instapay-button">
+        <span class="instapay-icon" style="font-size:1.5rem;">⚡</span>
+        <span>Pay with Instapay</span>
+      </a>
+      <div class="payment-note" style="margin-top:1.2rem; font-size:0.7rem;">✦ Instant & secure payments by Instapay ✦</div>
+    </div>
+  </section>
+
+  <!-- Contact section hidden from UI but preserved in DOM -->
+  <section id="contact" class="contact-section fade-up" style="display: none !important;">
+    <div class="contact-card">
+      <h2>Request a Bespoke Creation</h2>
+      <p>Share your vision with us. We’ll craft something unforgettable.</p>
+      <div class="input-group">
+        <input type="email" placeholder="Your email address" id="contactEmail">
+        <button class="submit-btn" id="contactBtn">Send Request →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer with borderless elegant icons — Instagram & TikTok with perfect light mode color -->
+  <div class="footer">
+    <div class="social-icons">
+      <!-- Instagram Icon - elegant vector, no border, perfect light mode -->
+      <a href="https://www.instagram.com/digital_vows_?igsh=dnUzZjN5eTY5cnZ1&utm_source=qr" target="_blank" rel="noopener noreferrer" class="social-icon-link" aria-label="Instagram">
+        <svg class="social-icon-svg" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2.153C15.308 2.153 15.697 2.166 17.026 2.229C18.263 2.289 18.93 2.478 19.379 2.636C19.966 2.846 20.397 3.096 20.845 3.544C21.293 3.992 21.543 4.423 21.753 5.01C21.911 5.459 22.1 6.126 22.16 7.363C22.223 8.692 22.236 9.081 22.236 12.389C22.236 15.697 22.223 16.086 22.16 17.415C22.1 18.652 21.911 19.319 21.753 19.768C21.543 20.355 21.293 20.786 20.845 21.234C20.397 21.682 19.966 21.932 19.379 22.142C18.93 22.3 18.263 22.489 17.026 22.549C15.697 22.612 15.308 22.625 12 22.625C8.692 22.625 8.303 22.612 6.974 22.549C5.737 22.489 5.07 22.3 4.621 22.142C4.034 21.932 3.603 21.682 3.155 21.234C2.707 20.786 2.457 20.355 2.247 19.768C2.089 19.319 1.9 18.652 1.84 17.415C1.777 16.086 1.764 15.697 1.764 12.389C1.764 9.081 1.777 8.692 1.84 7.363C1.9 6.126 2.089 5.459 2.247 5.01C2.457 4.423 2.707 3.992 3.155 3.544C3.603 3.096 4.034 2.846 4.621 2.636C5.07 2.478 5.737 2.289 6.974 2.229C8.303 2.166 8.692 2.153 12 2.153ZM12 0C8.648 0 8.232 0.014 6.88 0.076C5.525 0.138 4.581 0.336 3.748 0.632C2.882 0.938 2.13 1.354 1.38 2.104C0.63 2.854 0.214 3.606 -0.092 4.472C-0.388 5.305 -0.586 6.249 -0.648 7.604C-0.71 8.956 -0.724 9.372 -0.724 12.724C-0.724 16.076 -0.71 16.492 -0.648 17.844C-0.586 19.199 -0.388 20.143 -0.092 20.976C0.214 21.842 0.63 22.594 1.38 23.344C2.13 24.094 2.882 24.51 3.748 24.816C4.581 25.112 5.525 25.31 6.88 25.372C8.232 25.434 8.648 25.448 12 25.448C15.352 25.448 15.768 25.434 17.12 25.372C18.475 25.31 19.419 25.112 20.252 24.816C21.118 24.51 21.87 24.094 22.62 23.344C23.37 22.594 23.786 21.842 24.092 20.976C24.388 20.143 24.586 19.199 24.648 17.844C24.71 16.492 24.724 16.076 24.724 12.724C24.724 9.372 24.71 8.956 24.648 7.604C24.586 6.249 24.388 5.305 24.092 4.472C23.786 3.606 23.37 2.854 22.62 2.104C21.87 1.354 21.118 0.938 20.252 0.632C19.419 0.336 18.475 0.138 17.12 0.076C15.768 0.014 15.352 0 12 0Z" />
+          <path d="M12 5.838C8.597 5.838 5.838 8.597 5.838 12C5.838 15.403 8.597 18.162 12 18.162C15.403 18.162 18.162 15.403 18.162 12C18.162 8.597 15.403 5.838 12 5.838ZM12 16C9.791 16 8 14.209 8 12C8 9.791 9.791 8 12 8C14.209 8 16 9.791 16 12C16 14.209 14.209 16 12 16Z" />
+          <circle cx="18.406" cy="5.594" r="1.5" />
+        </svg>
+      </a>
+      <!-- TikTok Icon - elegant vector, perfect light mode coloring -->
+      <a href="https://www.tiktok.com/@digital_vows_?_r=1&_t=ZS-96IhTNrF9oS" target="_blank" rel="noopener noreferrer" class="social-icon-link" aria-label="TikTok">
+        <svg class="social-icon-svg" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.6 5.82C15.75 4.89 15.25 3.68 15.25 2.35H12.35L12.29 15.58C12.24 17.44 10.74 18.94 8.89 18.94C8.19 18.94 7.54 18.72 7 18.36C6.58 18.09 6.23 17.72 5.97 17.3C5.5 16.52 5.24 15.6 5.24 14.61C5.24 12.37 7.04 10.57 9.28 10.57C9.62 10.57 9.95 10.61 10.27 10.7V7.68C9.94 7.63 9.61 7.6 9.28 7.6C5.66 7.6 2.7 10.56 2.7 14.18C2.7 15.89 3.36 17.44 4.46 18.57C5.5 19.63 6.88 20.31 8.4 20.42C8.57 20.43 8.73 20.44 8.89 20.44C10.04 20.44 11.13 20.16 12.1 19.66C13.48 18.92 14.57 17.75 15.21 16.29C15.56 15.51 15.75 14.64 15.75 13.74V7.97C17.09 8.92 18.71 9.49 20.47 9.49V6.57C19.17 6.57 18 6.09 17.1 5.33C16.8 5.07 16.6 4.79 16.6 4.49V5.82Z" />
+        </svg>
+      </a>
+    </div>
+    <div>DigitalVows — where vision becomes invitation. © 2025</div>
+  </div>
+</div>
+
+<div class="dialog-overlay" id="customDialog">
+  <div class="dialog-card">
+    <h3 id="dialogTitle">Notice</h3>
+    <p id="dialogMessage"></p>
+    <button id="dialogCloseBtn">OK</button>
+  </div>
+</div>
+
+<script>
+  // Theme sync and toggle with minimalist text (LIGHT / DARK)
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  const applyTheme = (theme) => {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+      if (themeToggleBtn) themeToggleBtn.innerText = 'DARK';
+    } else {
+      document.body.classList.remove('light-mode');
+      if (themeToggleBtn) themeToggleBtn.innerText = 'LIGHT';
+    }
+  };
+  const savedTheme = localStorage.getItem('digitalvows-theme');
+  if (savedTheme === 'light') applyTheme('light');
+  else if (savedTheme === 'dark') applyTheme('dark');
+  else {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (!prefersDark) { applyTheme('light'); localStorage.setItem('digitalvows-theme', 'light'); }
+    else { applyTheme('dark'); localStorage.setItem('digitalvows-theme', 'dark'); }
+  }
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      if (document.body.classList.contains('light-mode')) {
+        applyTheme('dark');
+        localStorage.setItem('digitalvows-theme', 'dark');
+      } else {
+        applyTheme('light');
+        localStorage.setItem('digitalvows-theme', 'light');
+      }
+    });
+  }
+
+  const dialogOverlay = document.getElementById('customDialog');
+  const dialogTitle = document.getElementById('dialogTitle');
+  const dialogMessage = document.getElementById('dialogMessage');
+  const dialogCloseBtn = document.getElementById('dialogCloseBtn');
+  function showDialog(message, title = 'Notice') {
+    dialogTitle.innerText = title;
+    dialogMessage.innerText = message;
+    dialogOverlay.classList.add('active');
+    return new Promise((resolve) => {
+      const handler = () => {
+        dialogOverlay.classList.remove('active');
+        dialogCloseBtn.removeEventListener('click', handler);
+        resolve();
+      };
+      dialogCloseBtn.addEventListener('click', handler, { once: true });
+    });
+  }
+
+  const fadeElements = document.querySelectorAll('.fade-up');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+  }, { threshold: 0.15 });
+  fadeElements.forEach(el => observer.observe(el));
+
+  const navLinks = document.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      const sectionId = link.getAttribute('data-section');
+      const targetSection = document.getElementById(sectionId);
+      if (targetSection) targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  const pdfBtn = document.getElementById('pdfComingSoonBtn');
+  if (pdfBtn) pdfBtn.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); return false; });
+
+  const hiddenContactBtn = document.getElementById('contactBtn');
+  const hiddenEmailInput = document.getElementById('contactEmail');
+  if (hiddenContactBtn && hiddenEmailInput) {
+    hiddenContactBtn.disabled = true;
+    hiddenEmailInput.disabled = true;
+    hiddenContactBtn.style.pointerEvents = 'none';
+    hiddenEmailInput.style.pointerEvents = 'none';
+  }
+</script>
+</body>
+</html>
